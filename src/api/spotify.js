@@ -19,9 +19,8 @@ const SpotifyAPI = {
     if (token) {
       accessToken = token;
       expiresIn = Date.now() + Number(expiresIn) * 1000; // Convert to future timestamp
-      console.log("before clear");
       window.history.pushState({}, null, "/");
-      console.log("after clear");
+
       setTimeout(() => (accessToken = ""), Number(expiresIn) * 1000); // Reset after expiry
       return accessToken;
     }
@@ -54,7 +53,7 @@ const SpotifyAPI = {
         console.warn("No tracks found for this search query.");
         return [];
       }
-      console.log(response.tracks.items);
+
       return response.tracks.items.map((track) => ({
         id: track.id,
         name: track.name,
