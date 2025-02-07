@@ -11,6 +11,7 @@ function App() {
   const [tracks, setTracks] = useState([]);
   const [playlist, setPlaylist] = useState({ name: "", tracks: [] });
   const [searchTerm, setSearchTerm] = useState("");
+  const [activePreview, setActivePreview] = useState(null);
 
   // Playlist Handlers
   const updatePlaylistName = (newName) =>
@@ -59,17 +60,16 @@ function App() {
   return (
     <div className="font-roboto">
       {/* Header */}
-      <header className="bg-darkGreen/90 backdrop-blur-md fixed top-0 left-0 w-full z-50 py-4 px-8">
-        <div className="flex justify-between items-center">
-          <div className="w-1/3"></div>
-          <h1 className="text-white text-4xl font-bold tracking-wider absolute left-1/2 transform -translate-x-1/2 antialiased ">
+      <header className="bg-darkGreen/80 backdrop-blur-md fixed top-0 left-0 w-full z-50 py-4 px-8">
+        <div className="flex justify-between items-center relative flex-col sm:flex-row sm:items-center">
+          <h1 className="text-white text-4xl font-bold tracking-wider antialiased sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2">
             Trackify
           </h1>
 
           {/* Login Button on the Right */}
-          <nav className="mr-4">
+          <nav className="mt-4 sm:mt-0 sm:ml-auto">
             <button
-              className="text-white bg-green-600 hover:bg-green-500 px-6 py-2 rounded-full transition-all duration-300 shadow-md"
+              className="text-white font-bold bg-green-600 hover:bg-green-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
               onClick={SpotifyAPI.getAccessToken}
             >
               Login with Spotify
@@ -83,7 +83,7 @@ function App() {
         {/* Search */}
         <section
           id="search"
-          className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[80vh] flex justify-center items-center"
+          className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[80vh] mt-10 flex justify-center items-center"
         >
           {/* Background Overlay */}
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
@@ -98,18 +98,39 @@ function App() {
           </div>
         </section>
 
-        <SearchResults tracks={tracks} onTrackAction={addSong} />
-        {/* Playlist */}
-        <section id="playlist">
-          <Playlist
-            playlist={playlist}
-            onRemoveTrack={removeSong}
-            updatePlaylistName={updatePlaylistName}
-          />
-          <div>
-            <button onClick={handleSave}>Save to Spotify</button>
+        <div className="flex justify-between space-x-6 p-6">
+          {/* <!-- Search Results Section --> */}
+          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md">
+            <SearchResults
+              tracks={tracks}
+              onTrackAction={addSong}
+              activePreview={activePreview}
+              setActivePreview={setActivePreview}
+            />
           </div>
-        </section>
+
+          {/* <!-- Playlist Section --> */}
+          <section
+            id="playlist"
+            className="flex-1 bg-darkerGreen p-4 rounded-lg shadow-md"
+          >
+            <Playlist
+              playlist={playlist}
+              onRemoveTrack={removeSong}
+              updatePlaylistName={updatePlaylistName}
+              activePreview={activePreview}
+              setActivePreview={setActivePreview}
+            />
+            <div className="mt-4 text-center">
+              <button
+                className="bg-green-600 hover:bg-green-500 transform text-white mt-6 px-6 py-3 rounded-full shadow-lg hover:scale-105 transition-transform duration-200"
+                onClick={handleSave}
+              >
+                Save to Spotify
+              </button>
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
