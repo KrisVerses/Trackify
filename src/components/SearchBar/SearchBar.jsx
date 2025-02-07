@@ -3,7 +3,7 @@ import SearchButton from "./SearchButton";
 
 function SearchBar({ handleSearchInputChange, handleSearch, searchTerm }) {
   return (
-    <div className="bg-veryDarkGreen bg-opacity-80 p-8 rounded-xl shadow-lg max-w-lg w-full">
+    <div className="bg-darkGreen bg-opacity-90 p-8 rounded-xl shadow-lg max-w-lg w-full">
       <label htmlFor="search-track">
         <p className="text-white text-2xl text-center mb-4">
           Search Spotify to create a custom playlist
