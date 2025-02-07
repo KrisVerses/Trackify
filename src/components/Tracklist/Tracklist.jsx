@@ -7,6 +7,8 @@ function Tracklist({
   isInPlaylist,
   activePreview,
   setActivePreview,
+  searchResultsRef,
+  isPlaylistView,
 }) {
   return (
     <div>
@@ -18,6 +20,8 @@ function Tracklist({
           onTrackAction={onTrackAction}
           activePreview={activePreview}
           setActivePreview={setActivePreview}
+          searchResultsRef={searchResultsRef}
+          isPlaylistView={isPlaylistView}
         />
       ))}
     </div>

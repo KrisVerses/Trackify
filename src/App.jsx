@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import SearchResults from "./components/SearchResults/SearchResults";
 import Playlist from "./components/Playlist/Playlist";
@@ -12,6 +12,9 @@ function App() {
   const [playlist, setPlaylist] = useState({ name: "", tracks: [] });
   const [searchTerm, setSearchTerm] = useState("");
   const [activePreview, setActivePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const searchResultsRef = useRef(null);
 
   // Playlist Handlers
   const updatePlaylistName = (newName) =>
@@ -43,8 +46,15 @@ function App() {
   };
 
   async function handleSearch(e) {
+    if (!searchTerm) return;
+    setLoading(true);
+
     const results = await SpotifyAPI.searchTrack(searchTerm);
     setTracks(results);
+
+    setLoading(false);
+
+    searchResultsRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   // Utility functions
@@ -98,32 +108,43 @@ function App() {
           </div>
         </section>
 
-        <div className="flex justify-between space-x-6 p-6">
-          {/* <!-- Search Results Section --> */}
-          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md">
+        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-center items-start lg:items-stretch space-x-6 p-6">
+          {/* Search Results Section */}
+          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md max-h-[550px] overflow-y-auto">
             <SearchResults
               tracks={tracks}
               onTrackAction={addSong}
               activePreview={activePreview}
               setActivePreview={setActivePreview}
+              loading={loading}
+              searchResultsRef={searchResultsRef}
+              isPlaylistView={false}
             />
           </div>
 
           {/* <!-- Playlist Section --> */}
           <section
             id="playlist"
-            className="flex-1 bg-darkerGreen p-4 rounded-lg shadow-md"
+            className="flex-1 bg-darkerGreen p-4 rounded-lg shadow-md space-y-3 min-h-[200px] flex flex-col items-center"
           >
-            <Playlist
-              playlist={playlist}
-              onRemoveTrack={removeSong}
-              updatePlaylistName={updatePlaylistName}
-              activePreview={activePreview}
-              setActivePreview={setActivePreview}
-            />
+            {playlist.tracks.length === 0 ? (
+              <p className="text-gray-400 text-,d">
+                Your playlist is empty. Add songs!
+              </p>
+            ) : (
+              <Playlist
+                playlist={playlist}
+                onRemoveTrack={removeSong}
+                updatePlaylistName={updatePlaylistName}
+                activePreview={activePreview}
+                setActivePreview={setActivePreview}
+                isPlaylistView={true}
+              />
+            )}
             <div className="mt-4 text-center">
               <button
-                className="bg-green-600 hover:bg-green-500 transform text-white mt-6 px-6 py-3 rounded-full shadow-lg hover:scale-105 transition-transform duration-200"
+                className="bg-green-600 hover:bg-green-500 transform text-white mt-6 px-6 py-3 rounded-full hover:scale-105 transition-transform duration-200 shadow-lg border border-green-500 hover:shadow-xl
+"
                 onClick={handleSave}
               >
                 Save to Spotify
