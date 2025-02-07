@@ -7,7 +7,7 @@ const base_url = "https://api.spotify.com/v1/";
 let accessToken = null;
 let expiresIn = null;
 
-const Spotify = {
+const SpotifyAPI = {
   getAccessToken() {
     if (accessToken && Date.now() < expiresIn) return accessToken;
 
@@ -123,4 +123,4 @@ const Spotify = {
   },
 };
 
-export default Spotify;
+export default SpotifyAPI;

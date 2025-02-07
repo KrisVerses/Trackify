@@ -4,7 +4,7 @@ import SearchResults from "./components/SearchResults/SearchResults";
 import Playlist from "./components/Playlist/Playlist";
 import SearchBar from "./components/SearchBar/SearchBar";
 
-import Spotify from "./api/spotify";
+import SpotifyAPI from "./api/spotify";
 
 function App() {
   // State
@@ -32,7 +32,7 @@ function App() {
   };
 
   async function handleSave() {
-    await Spotify.saveUserPlaylist(playlist.name, exportPlaylist());
+    await SpotifyAPI.saveUserPlaylist(playlist.name, exportPlaylist());
   }
 
   //Search Handlers
@@ -42,8 +42,7 @@ function App() {
   };
 
   async function handleSearch(e) {
-    console.log("handleSearch");
-    const results = await Spotify.searchTrack(searchTerm);
+    const results = await SpotifyAPI.searchTrack(searchTerm);
     setTracks(results);
   }
 
@@ -58,25 +57,49 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="font-roboto">
       {/* Header */}
-      <header>
-        <h1 className="bg-customColor text-white p-4">Trackify</h1>
-        <h1 className="bg-testColor text-white p-4">Test Color</h1>
-        <button onClick={Spotify.getAccessToken}>Login with Spotify</button>
+      <header className="bg-darkGreen/90 backdrop-blur-md fixed top-0 left-0 w-full z-50 py-4 px-8">
+        <div className="flex justify-between items-center">
+          <div className="w-1/3"></div>
+          <h1 className="text-white text-4xl font-bold tracking-wider absolute left-1/2 transform -translate-x-1/2 antialiased ">
+            Trackify
+          </h1>
+
+          {/* Login Button on the Right */}
+          <nav className="mr-4">
+            <button
+              className="text-white bg-green-600 hover:bg-green-500 px-6 py-2 rounded-full transition-all duration-300 shadow-md"
+              onClick={SpotifyAPI.getAccessToken}
+            >
+              Login with Spotify
+            </button>
+          </nav>
+        </div>
       </header>
 
-      {/* Search */}
+      {/* Main */}
       <main>
-        <section id="search">
-          <SearchBar
-            handleSearchInputChange={handleSearchInputChange}
-            handleSearch={handleSearch}
-            searchTerm={searchTerm}
-          />
-          <SearchResults tracks={tracks} onTrackAction={addSong} />
+        {/* Search */}
+        <section
+          id="search"
+          className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[80vh] flex justify-center items-center"
+        >
+          {/* Background Overlay */}
+          <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+
+          {/* Search Bar */}
+          <div className="relative z-10">
+            <SearchBar
+              handleSearchInputChange={handleSearchInputChange}
+              handleSearch={handleSearch}
+              searchTerm={searchTerm}
+            />
+          </div>
         </section>
 
+        <SearchResults tracks={tracks} onTrackAction={addSong} />
+        {/* Playlist */}
         <section id="playlist">
           <Playlist
             playlist={playlist}
