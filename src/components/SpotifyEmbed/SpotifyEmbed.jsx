@@ -1,6 +1,6 @@
 import React from "react";
 
-const SpotifyEmbed = ({ trackId }) => {
+const SpotifyEmbed = ({ trackId, setIframeLoaded }) => {
   return (
     <div className="rounded-lg overflow-hidden transform-none scale-100">
       <iframe
@@ -9,7 +9,8 @@ const SpotifyEmbed = ({ trackId }) => {
         height="80"
         frameBorder="0"
         allow="encrypted-media"
-        className="transform-none scale-100"
+        className="transform-none preview-fade scale-100"
+        onLoad={() => setIframeLoaded(true)}
       ></iframe>
     </div>
   );
