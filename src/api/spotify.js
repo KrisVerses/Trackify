@@ -31,8 +31,8 @@ const SpotifyAPI = {
 
     window.location.href = authUrl;
   },
-  async searchTrack(track) {
-    if (!track?.trim()) {
+  async searchTrack(searchTerm) {
+    if (!searchTerm?.trim()) {
       console.warn("Search query is empty. Aborting request.");
       return [];
     }
@@ -44,7 +44,7 @@ const SpotifyAPI = {
     }
 
     const searchEndpoint = `${base_url}search?type=track&q=${encodeURIComponent(
-      track
+      searchTerm
     )}`;
 
     try {
@@ -121,6 +121,19 @@ const SpotifyAPI = {
         e.response?.data?.error?.message || e.message
       );
     }
+  },
+  async fetchSpotifyUserData() {
+    const token = this.getAccessToken(); // Fetch and set the token if needed
+    if (!token) {
+      console.error("No access token found! User may need to log in.");
+      return { token: null, user: null };
+    }
+    localStorage.setItem("spotifyToken", token);
+    const response = await fetch("https://api.spotify.com/v1/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await response.json();
+    return { token, user: data.display_name };
   },
 };
 

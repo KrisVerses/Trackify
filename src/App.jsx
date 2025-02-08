@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import SearchResults from "./components/SearchResults/SearchResults";
 import Playlist from "./components/Playlist/Playlist";
@@ -13,8 +13,27 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activePreview, setActivePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   const searchResultsRef = useRef(null);
+
+  useEffect(() => {
+    const preservedSearchTerm = localStorage.getItem("searchTerm");
+    if (preservedSearchTerm) {
+      setSearchTerm(preservedSearchTerm);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      localStorage.setItem("searchTerm", searchTerm);
+    }
+  }, [searchTerm]);
 
   // Playlist Handlers
   const updatePlaylistName = (newName) =>
@@ -48,13 +67,15 @@ function App() {
   async function handleSearch(e) {
     if (!searchTerm) return;
     setLoading(true);
-
-    const results = await SpotifyAPI.searchTrack(searchTerm);
-    setTracks(results);
-
-    setLoading(false);
-
-    searchResultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    try {
+      const results = await SpotifyAPI.searchTrack(searchTerm);
+      setTracks(results);
+      searchResultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      console.error("Failed to fetch search results:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Utility functions
@@ -65,6 +86,22 @@ function App() {
     }
 
     return playlist.tracks.map((track) => track.uri);
+  };
+
+  const fetchUser = async () => {
+    try {
+      const { token, user } = await SpotifyAPI.fetchSpotifyUserData();
+      if (token && user) {
+        setUser(user);
+        setIsLoggedIn(true);
+      } else {
+        throw new Error("No user found");
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+      setIsLoggedIn(false);
+      localStorage.removeItem("spotifyToken");
+    }
   };
 
   return (
@@ -78,12 +115,28 @@ function App() {
 
           {/* Login Button on the Right */}
           <nav className="mt-4 sm:mt-0 sm:ml-auto">
-            <button
-              className="text-white font-bold bg-green-600 hover:bg-green-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
-              onClick={SpotifyAPI.getAccessToken}
-            >
-              Login with Spotify
-            </button>
+            {isLoggedIn && user ? (
+              <div className="flex items-center space-x-4">
+                <p className="text-white font-semibold">Welcome, {user}!</p>
+                <button
+                  className="text-white font-bold bg-red-600 hover:bg-red-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
+                  onClick={() => {
+                    localStorage.removeItem("spotifyToken");
+                    setIsLoggedIn(false);
+                    setUser(null);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                className="text-white font-bold bg-green-600 hover:bg-green-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
+                onClick={SpotifyAPI.getAccessToken}
+              >
+                Login with Spotify
+              </button>
+            )}
           </nav>
         </div>
       </header>
@@ -111,7 +164,10 @@ function App() {
         {/* SEARCH AND PLAYLIST CONTAINER */}
         <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 p-6">
           {/* Search Results Section */}
-          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md overflow-y-auto max-h-[550px]">
+          <section
+            id="search-results"
+            className="flex-1 bg-softGreen p-4 rounded-lg shadow-md overflow-y-auto max-h-[550px]"
+          >
             <SearchResults
               tracks={tracks}
               onTrackAction={addSong}
@@ -121,7 +177,7 @@ function App() {
               searchResultsRef={searchResultsRef}
               isPlaylistView={false}
             />
-          </div>
+          </section>
 
           {/* <!-- Playlist Section --> */}
           <section
@@ -154,6 +210,19 @@ function App() {
           </section>
         </div>
       </main>
+      <footer className="flex justify-center border-t border-gray-600 text-sm bg-darkGreen p-6 text-gray-300">
+        <p className="mr-3.5">Trackify 2025</p>
+        <p className="ml-3.5 mr-1.5">Powered by the Spotify Web API</p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="#1DB954"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+        >
+          <path d="M12 .5C5.648.5.5 5.648.5 12S5.648 23.5 12 23.5 23.5 18.352 23.5 12 18.352.5 12 .5zm5.338 17.693a.77.77 0 01-1.053.237c-2.884-1.773-6.523-2.171-10.793-1.181a.77.77 0 01-.36-1.502c4.598-1.099 8.617-.658 11.846 1.32.364.224.478.701.237 1.053zm1.411-3.158a.923.923 0 01-1.261.284c-3.303-2.029-8.364-2.615-12.24-1.363a.923.923 0 11-.526-1.769c4.374-1.302 9.89-.667 13.596 1.545.437.268.576.847.284 1.261zm.157-3.461C15.396 8.984 8.585 8.783 4.663 9.996a1.078 1.078 0 11-.615-2.067c4.418-1.316 11.879-1.075 16.014 1.62a1.078 1.078 0 11-1.106 1.845z" />
+        </svg>
+      </footer>
     </div>
   );
 }
