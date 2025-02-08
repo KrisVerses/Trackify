@@ -108,9 +108,10 @@ function App() {
           </div>
         </section>
 
-        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-center items-start lg:items-stretch space-x-6 p-6">
+        {/* SEARCH AND PLAYLIST CONTAINER */}
+        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 p-6">
           {/* Search Results Section */}
-          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md max-h-[550px] overflow-y-auto">
+          <div className="flex-1 bg-softGreen p-4 rounded-lg shadow-md overflow-y-auto max-h-[550px]">
             <SearchResults
               tracks={tracks}
               onTrackAction={addSong}
@@ -125,10 +126,10 @@ function App() {
           {/* <!-- Playlist Section --> */}
           <section
             id="playlist"
-            className="flex-1 bg-darkerGreen p-4 rounded-lg shadow-md space-y-3 min-h-[200px] flex flex-col items-center"
+            className="flex-1 bg-darkerGreen p-4 rounded-lg shadow-md space-y-3 min-h-[200px] flex flex-col"
           >
             {playlist.tracks.length === 0 ? (
-              <p className="text-gray-400 text-,d">
+              <p className="text-gray-400 my-8 text-center">
                 Your playlist is empty. Add songs!
               </p>
             ) : (

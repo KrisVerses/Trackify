@@ -10,7 +10,7 @@ function Playlist({
   isPlaylistView,
 }) {
   return (
-    <div className="p-6 rounded-lg w-full">
+    <div className="p-6 rounded-lg w-full scroll-smooth">
       <h1 className="text-2xl font-semibold font-roboto text-softGreen text-center tracking-wide uppercase mb-2">
         Playlists
       </h1>
@@ -28,7 +28,7 @@ function Playlist({
           value={playlist.name}
           onChange={(e) => updatePlaylistName(e.target.value)}
           autoComplete="off"
-          className="w-4/5bg-white text-darkerGreen text-lg px-4 py-2 rounded-lg shadow-inner focus:outline-double focus:ring-2 focus:ring-accentGreen"
+          className="w-4/5bg-white w-full text-darkerGreen text-lg px-4 py-2 rounded-lg shadow-inner focus:outline-double focus:ring-2 focus:ring-accentGreen"
         />
       </div>
       <Tracklist

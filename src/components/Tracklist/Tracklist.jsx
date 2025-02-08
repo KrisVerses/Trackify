@@ -11,7 +11,7 @@ function Tracklist({
   isPlaylistView,
 }) {
   return (
-    <div>
+    <div className="flex flex-col">
       {tracks.map((track, i) => (
         <Track
           key={track.id}

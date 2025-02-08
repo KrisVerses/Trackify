@@ -12,7 +12,7 @@ function SearchResults({
 }) {
   return (
     <div
-      className="bg-softGreen p-6 rounded-lg w-full max-w-2xlscroll-smooth"
+      className="bg-softGreen lg:p-6 md:p-2 sm:p-0 rounded-lg w-full scroll-smooth"
       ref={searchResultsRef}
     >
       <h2 className="text-2xl font-semibold font-roboto text-veryDarkGreen text-center tracking-wide uppercase mt-4 mb-2">
