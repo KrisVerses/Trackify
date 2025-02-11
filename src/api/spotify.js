@@ -10,16 +10,9 @@ let expiresIn = null;
 const SpotifyAPI = {
   getAccessToken() {
     console.log("Getting access token...");
-    let token = localStorage.getItem("spotifyToken");
-    if (token && Date.now() < expiresIn) {
-      console.log("Token found in localStorage");
-      accessToken = token; // Ensure global variable is synced
-      return accessToken;
-    }
-
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
-    token = params.get("access_token");
+    let token = params.get("access_token");
     expiresIn = params.get("expires_in");
 
     if (token) {
@@ -29,6 +22,18 @@ const SpotifyAPI = {
       localStorage.setItem("spotifyToken", token);
       window.history.pushState({}, null, "/");
       setTimeout(() => (accessToken = ""), Number(expiresIn) * 1000); // Reset after expiry
+      return accessToken;
+    }
+
+    const storedToken = localStorage.getItem("spotifyToken");
+    if (storedToken) {
+      console.log("Using token from localStorage:", storedToken);
+      return storedToken;
+    }
+
+    if (storedToken && Date.now() < expiresIn) {
+      console.log("Token found in localStorage");
+      accessToken = storedToken; // Ensure global variable is synced
       return accessToken;
     }
 

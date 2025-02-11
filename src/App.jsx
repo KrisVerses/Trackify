@@ -14,6 +14,7 @@ function App() {
   const [activePreview, setActivePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isFetchingUser, setIsFetchingUser] = useState(true);
   const [user, setUser] = useState(null);
 
   const searchResultsRef = useRef(null);
@@ -24,9 +25,11 @@ function App() {
       setSearchTerm(preservedSearchTerm);
     }
 
-    const token = SpotifyAPI.getAccessToken(); // Get token on initial load
+    const token = SpotifyAPI.getAccessToken();
     if (token) {
-      fetchUser(token); // Pass token to fetch user data
+      fetchUser(token).finally(() => setIsFetchingUser(false)); // Ensure loading state is cleared
+    } else {
+      setIsFetchingUser(false); // No token, stop loading
     }
   }, []);
 
@@ -65,21 +68,22 @@ function App() {
     setSearchTerm(query);
   };
 
-  async function handleSearch(e) {
-    console.log("search term: " + searchTerm);
-    if (!searchTerm) return;
+  const handleSearch = async (e) => {
+    // if (!isLoggedIn) {
+    //   alert("Please log in to search for tracks.");
+    //   return;
+    // }
+
     setLoading(true);
     try {
       const results = await SpotifyAPI.searchTrack(searchTerm);
-      console.log("results: " + results);
       setTracks(results);
-      searchResultsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Failed to fetch search results:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   // Utility functions
   const exportPlaylist = () => {
@@ -99,19 +103,25 @@ function App() {
       setIsLoggedIn(true);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
-      setIsLoggedIn(false);
+      handleLogout(); // Clear token and reset state on failure
     }
   };
 
-  async function handleLogin() {
-    console.log("Handling login...");
-    const token = SpotifyAPI.getAccessToken(); // Get access token
+  const handleLogin = async () => {
+    console.log("Logging in...");
+    let token = SpotifyAPI.getAccessToken(); // Redirect to Spotify for login
+    console.log("token: " + token);
     if (token) {
-      console.log("Token found: ", token);
-      await fetchUser(token); // Wait for user data to be fetched
-      setIsLoggedIn(true);
+      await fetchUser();
     }
-  }
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    localStorage.removeItem("spotifyToken");
+    setIsLoggedIn(false);
+    setUser(null);
+  };
 
   return (
     <div className="font-roboto">
@@ -129,12 +139,7 @@ function App() {
                 <p className="text-white font-semibold">Welcome, {user}!</p>
                 <button
                   className="text-white font-bold bg-red-600 hover:bg-red-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
-                  onClick={() => {
-                    console.log("Logging out...");
-                    localStorage.removeItem("spotifyToken");
-                    setIsLoggedIn(false);
-                    setUser(null);
-                  }}
+                  onClick={handleLogout}
                 >
                   Logout
                 </button>
@@ -159,7 +164,7 @@ function App() {
           className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[60vh] mt-10 flex justify-center items-center"
         >
           {/* Background Overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+          <div className="absolute inset-0 bg-black bg-opacity-30"></div>
 
           {/* Search Bar */}
           <div className="relative z-10">
@@ -167,12 +172,13 @@ function App() {
               handleSearchInputChange={handleSearchInputChange}
               handleSearch={handleSearch}
               searchTerm={searchTerm}
+              isLoggedIn={isLoggedIn}
             />
           </div>
         </section>
 
         {/* SEARCH AND PLAYLIST CONTAINER */}
-        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 p-6 animate-fadeIn">
+        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 gap-4 p-6 animate-fadeIn">
           {/* Search Results Section */}
           <section
             id="search-results"
