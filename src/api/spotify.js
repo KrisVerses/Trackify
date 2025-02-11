@@ -5,7 +5,7 @@ const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const redirectUri =
   process.env.NODE_ENV === "development"
     ? "http://localhost:5173/callback" // Local development
-    : "https://your-netlify-site.netlify.app/callback"; // Production
+    : "https://trackify-verses.netlify.app/"; // Production
 const base_url = "https://api.spotify.com/v1/";
 let accessToken = null;
 let expiresIn = null;
