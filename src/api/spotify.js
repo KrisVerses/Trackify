@@ -2,7 +2,10 @@ import axios from "axios";
 import { makeRequest } from "../utils/helpers";
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-const redirectUri = "http://localhost:5173/callback";
+const redirectUri =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:5173/callback" // Local development
+    : "https://your-netlify-site.netlify.app/callback"; // Production
 const base_url = "https://api.spotify.com/v1/";
 let accessToken = null;
 let expiresIn = null;
