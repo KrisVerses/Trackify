@@ -4,10 +4,7 @@ function SearchButton({ handleSearch, searchTerm }) {
   return (
     <button
       className="ml-2 bg-green-600 hover:bg-green-500 font-bold text-white px-6 py-3 rounded-full transition-all duration-300 shadow-md hover:scale-105"
-      onClick={(e) => {
-        e.preventDefault();
-        handleSearch();
-      }}
+      onClick={handleSearch}
       disabled={!searchTerm.trim()}
     >
       Search

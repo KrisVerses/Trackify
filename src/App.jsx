@@ -23,10 +23,11 @@ function App() {
     if (preservedSearchTerm) {
       setSearchTerm(preservedSearchTerm);
     }
-  }, []);
 
-  useEffect(() => {
-    fetchUser();
+    const token = SpotifyAPI.getAccessToken(); // Get token on initial load
+    if (token) {
+      fetchUser(token); // Pass token to fetch user data
+    }
   }, []);
 
   useEffect(() => {
@@ -65,10 +66,12 @@ function App() {
   };
 
   async function handleSearch(e) {
+    console.log("search term: " + searchTerm);
     if (!searchTerm) return;
     setLoading(true);
     try {
       const results = await SpotifyAPI.searchTrack(searchTerm);
+      console.log("results: " + results);
       setTracks(results);
       searchResultsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
@@ -90,19 +93,25 @@ function App() {
 
   const fetchUser = async () => {
     try {
-      const { token, user } = await SpotifyAPI.fetchSpotifyUserData();
-      if (token && user) {
-        setUser(user);
-        setIsLoggedIn(true);
-      } else {
-        throw new Error("No user found");
-      }
+      const { user } = await SpotifyAPI.fetchSpotifyUserData();
+      console.log("Fetched user:", user);
+      setUser(user);
+      setIsLoggedIn(true);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
       setIsLoggedIn(false);
-      localStorage.removeItem("spotifyToken");
     }
   };
+
+  async function handleLogin() {
+    console.log("Handling login...");
+    const token = SpotifyAPI.getAccessToken(); // Get access token
+    if (token) {
+      console.log("Token found: ", token);
+      await fetchUser(token); // Wait for user data to be fetched
+      setIsLoggedIn(true);
+    }
+  }
 
   return (
     <div className="font-roboto">
@@ -121,6 +130,7 @@ function App() {
                 <button
                   className="text-white font-bold bg-red-600 hover:bg-red-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
                   onClick={() => {
+                    console.log("Logging out...");
                     localStorage.removeItem("spotifyToken");
                     setIsLoggedIn(false);
                     setUser(null);
@@ -132,7 +142,7 @@ function App() {
             ) : (
               <button
                 className="text-white font-bold bg-green-600 hover:bg-green-500 px-6 py-3 rounded-full shadow-md hover:scale-105 transition-transform duration-200"
-                onClick={SpotifyAPI.getAccessToken}
+                onClick={handleLogin}
               >
                 Login with Spotify
               </button>
@@ -146,7 +156,7 @@ function App() {
         {/* Search */}
         <section
           id="search"
-          className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[80vh] mt-10 flex justify-center items-center"
+          className="relative bg-[url('/background.jpg')] bg-cover bg-center bg-no-repeat w-full h-[60vh] mt-10 flex justify-center items-center"
         >
           {/* Background Overlay */}
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
@@ -162,7 +172,7 @@ function App() {
         </section>
 
         {/* SEARCH AND PLAYLIST CONTAINER */}
-        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 p-6">
+        <div className="max-w-[1300px] mx-auto flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6 p-6 animate-fadeIn">
           {/* Search Results Section */}
           <section
             id="search-results"

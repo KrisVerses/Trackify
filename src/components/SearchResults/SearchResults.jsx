@@ -10,6 +10,8 @@ function SearchResults({
   searchResultsRef,
   isPlaylistView,
 }) {
+  console.log("Searching for tracks...");
+  console.log(tracks);
   return (
     <div
       className="bg-softGreen lg:p-6 md:p-2 sm:p-0 rounded-lg w-full scroll-smooth"
@@ -23,7 +25,7 @@ function SearchResults({
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green-500"></div>
         </div>
-      ) : tracks.length === 0 ? (
+      ) : tracks?.length === 0 ? (
         <p className="text-gray-500 text-md text-center my-8">
           No results found. Try another search.
         </p>

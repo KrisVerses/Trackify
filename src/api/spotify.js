@@ -9,18 +9,25 @@ let expiresIn = null;
 
 const SpotifyAPI = {
   getAccessToken() {
-    if (accessToken && Date.now() < expiresIn) return accessToken;
+    console.log("Getting access token...");
+    let token = localStorage.getItem("spotifyToken");
+    if (token && Date.now() < expiresIn) {
+      console.log("Token found in localStorage");
+      accessToken = token; // Ensure global variable is synced
+      return accessToken;
+    }
 
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
-    const token = params.get("access_token");
+    token = params.get("access_token");
     expiresIn = params.get("expires_in");
 
     if (token) {
+      console.log("there is a token");
       accessToken = token;
       expiresIn = Date.now() + Number(expiresIn) * 1000; // Convert to future timestamp
+      localStorage.setItem("spotifyToken", token);
       window.history.pushState({}, null, "/");
-
       setTimeout(() => (accessToken = ""), Number(expiresIn) * 1000); // Reset after expiry
       return accessToken;
     }
@@ -32,12 +39,13 @@ const SpotifyAPI = {
     window.location.href = authUrl;
   },
   async searchTrack(searchTerm) {
+    console.log("searching track...");
     if (!searchTerm?.trim()) {
       console.warn("Search query is empty. Aborting request.");
       return [];
     }
 
-    const token = this.getAccessToken();
+    const token = localStorage.getItem("spotifyToken");
     if (!token) {
       console.error("No access token found! User may need to log in.");
       return;
@@ -49,7 +57,7 @@ const SpotifyAPI = {
 
     try {
       const response = await makeRequest("get", searchEndpoint);
-      if (!response?.tracks?.items) {
+      if (!response || !response.tracks || !response.tracks.items) {
         console.warn("No tracks found for this search query.");
         return [];
       }
@@ -63,10 +71,7 @@ const SpotifyAPI = {
         uri: track.uri,
       }));
     } catch (e) {
-      console.error(
-        "Error fetching track:",
-        e.response?.data?.error?.message || e.message
-      );
+      console.error("Error fetching track:", e.response || e);
       return [];
     }
   },
@@ -123,7 +128,8 @@ const SpotifyAPI = {
     }
   },
   async fetchSpotifyUserData() {
-    const token = this.getAccessToken(); // Fetch and set the token if needed
+    console.log("fetching user data....");
+    const token = localStorage.getItem("spotifyToken"); // Fetch and set the token if needed
     if (!token) {
       console.error("No access token found! User may need to log in.");
       return { token: null, user: null };
