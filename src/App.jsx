@@ -15,6 +15,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isFetchingUser, setIsFetchingUser] = useState(true);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false); // New state
   const [user, setUser] = useState(null);
 
   const searchResultsRef = useRef(null);
@@ -59,7 +60,19 @@ function App() {
   };
 
   async function handleSave() {
-    await SpotifyAPI.saveUserPlaylist(playlist.name, exportPlaylist());
+    try {
+      const playlistId = await SpotifyAPI.saveUserPlaylist(
+        playlist.name,
+        exportPlaylist()
+      );
+      if (playlistId) {
+        console.log("Playlist saved successfully!");
+        setShowSuccessMessage(true); // Show the success message
+        setTimeout(() => setShowSuccessMessage(false), 5000); // Hide after 5 seconds
+      }
+    } catch (error) {
+      console.error("Failed to save playlist:", error);
+    }
   }
 
   //Search Handlers
@@ -69,11 +82,6 @@ function App() {
   };
 
   const handleSearch = async (e) => {
-    // if (!isLoggedIn) {
-    //   alert("Please log in to search for tracks.");
-    //   return;
-    // }
-
     setLoading(true);
     try {
       const results = await SpotifyAPI.searchTrack(searchTerm);
@@ -212,6 +220,7 @@ function App() {
                 activePreview={activePreview}
                 setActivePreview={setActivePreview}
                 isPlaylistView={true}
+                showSuccessMessage={showSuccessMessage}
               />
             )}
             <div className="mt-4 text-center">

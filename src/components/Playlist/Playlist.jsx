@@ -8,6 +8,7 @@ function Playlist({
   activePreview,
   setActivePreview,
   isPlaylistView,
+  showSuccessMessage,
 }) {
   return (
     <div className="p-6 rounded-lg w-full scroll-smooth">
@@ -39,6 +40,11 @@ function Playlist({
         setActivePreview={setActivePreview}
         isPlaylistView={isPlaylistView}
       />
+      {showSuccessMessage && (
+        <div className="bg-green-500 text-white p-4 rounded-lg shadow-md mb-4 animate-fadeIn transition-all duration-500">
+          ✅ Your playlist has been successfully added to Spotify!
+        </div>
+      )}
     </div>
   );
 }
